@@ -4,15 +4,15 @@
   {% if page_obj %}
     <div class="responsive-table">
       <table class="contacts-table">
-        <caption class="table-caption">CONTACTS</caption>
+        <caption class="table-caption">КОНТАКТЫ</caption>
 
         <thead>
           <tr class="table-row table-row-header">
             <th class="table-header">ID</th>
-            <th class="table-header">FIRST NAME</th>
-            <th class="table-header">LAST NAME</th>
-            <th class="table-header">PHONE</th>
-            <th class="table-header">E-MAIL</th>
+            <th class="table-header">ИМЯ</th>
+            <th class="table-header">ФАМИЛИЯ</th>
+            <th class="table-header">ТЕЛЕФОН</th>
+            <th class="table-header">ЭЛЕКТРОННАЯ ПОЧТА</th>
           </tr>
         </thead>
         <tbody>
@@ -32,7 +32,7 @@
     </div>
   {% else %}
     <div class="single-contact">
-      <h1 class="single-contact-name">Nenhum contacto encontrado.</h1>
+      <h1 class="single-contact-name">Контакты не найдены.</h1>
     </div>
   {% endif %}
 {% endblock %}

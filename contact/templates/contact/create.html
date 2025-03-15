@@ -2,7 +2,7 @@
 
 {% block content %}
   <div class="form-wrapper">
-    <h2>CONTACT</h2>
+    <h2>КОНТАКТ</h2>
 
     <form action="{{ form_action }}" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
@@ -15,21 +15,21 @@
             {{ field }}
 
             {{ field.errors }}
-            
+
             {% if field.help_text %}
                 <p class="help-text">
                     {{ field.help_text }}
                 </p>
             {% endif %}
-            
+
           </div>
-          
-          {% if field.name == 'picture' and field.value.url%} 
+
+          {% if field.name == 'picture' and field.value.url%}
           <div class="form-group">
                 <img src="{{ field.value.url }}" alt="">
           </div>
           {% endif %}
-        
+
         {% endfor %}
 
       </div>
@@ -44,7 +44,7 @@
 
       <div class="form-content">
         <div class="form-group">
-          <button class="btn" type="submit">SEND</button>
+          <button class="btn" type="submit">ОТПРАВИТЬ</button>
         </div>
       </div>
     </form>

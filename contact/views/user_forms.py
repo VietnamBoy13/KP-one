@@ -7,79 +7,76 @@ from contact.forms import RegisterForm, RegisterUpdateForm
 
 
 def register(request):
-
     form = RegisterForm()
-
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
 
         if form.is_valid():
             form.save()
-            messages.success(request, 'User Registed') 
-            return redirect('contact:login') #vai mudar de pagina, e aparecer a mgs por la.
+            messages.success(request, 'Пользователь зарегистрирован')
+            return redirect('contact:login')  # Перенаправит на страницу входа, и сообщение отобразится там.
 
     return render(
         request,
-        'contact/register.html', 
+        'contact/register.html',
         {
             'form': form
         }
     )
 
+
 def login_view(request):
-    
     form = AuthenticationForm(request)
-    
-    if request.method == 'POST': 
-        form = AuthenticationForm(request, data= request.POST)
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
 
         if form.is_valid():
             user = form.get_user()
-            auth.login(request, user) #Para autenticar o usuario e permitir que ele entre
-            messages.success(request, 'Login Successfully') 
+            auth.login(request, user)  # Для аутентификации пользователя и разрешения ему войти
+            messages.success(request, 'Вход выполнен успешно')
             return redirect('contact:index')
-        
+
     return render(
         request,
-        'contact/login.html', 
+        'contact/login.html',
         {
             'form': form
         }
     )
-    
-@login_required(login_url='contact:login') #Para caso n esteja logado, redirecionar isso para contact:login
+
+
+@login_required(login_url='contact:login')  # Если не авторизован, перенаправить на страницу login
 def logout_view(request):
     auth.logout(request)
     return redirect('contact:login')
 
-@login_required(login_url='contact:login') #Para caso n esteja logado, redirecionar isso para contact:login
-def user_update(request):
 
+@login_required(login_url='contact:login')  # Если не авторизован, перенаправить на страницу login
+def user_update(request):
     form = RegisterUpdateForm(instance=request.user)
 
     if request.method != 'POST':
-
         return render(
             request,
-            'contact/user_update.html', 
+            'contact/user_update.html',
             {
-            'form': form
+                'form': form
             }
         )
-    
+
     form = RegisterUpdateForm(data=request.POST, instance=request.user)
 
     if not form.is_valid():
-        
         return render(
             request,
-            'contact/user_update.html', 
+            'contact/user_update.html',
             {
-            'form': form
+                'form': form
             }
         )
 
     form.save()
-    messages.success(request, 'Updated Successfully') 
+    messages.success(request, 'Обновление прошло успешно')
     return redirect('contact:index')

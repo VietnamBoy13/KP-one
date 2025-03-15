@@ -7,65 +7,79 @@ from django.core.exceptions import ValidationError
 from . import models
 
 
-class ContactForm(forms.ModelForm): 
+class ContactForm(forms.ModelForm):
     picture = forms.ImageField(
-        widget= forms.FileInput(
+        label='Изображение',
+        widget=forms.FileInput(
             attrs={
-                'accept':'image/*', # Essa linha diz para ceitar qualquer imagem, posso restringir se quiser.
+                'accept': 'image/*',
+                # Эта строка указывает, что принимаются любые изображения. Можно ограничить, если нужно.
             }
         ),
-        required=False, # para que n seja obrigado a add ft
+        required=False,  # Необязательно добавлять изображение
     )
+
     class Meta:
         model = models.Contact
         fields = (
-            'first_name','last_name','phone','email','description',
-            'category','picture'
-            )
- 
-    def clean(self):
+            'first_name', 'last_name', 'phone', 'email', 'description',
+            'category', 'picture'
+        )
+        labels = {
+            "first_name": "Имя",
+            "last_name": "Фамилия",
+            "email": "Электронная почта",
+            "phone": "Телефон",
+            "description": "Описание",
+            "category": "Категория",
+            "picture": "Изображение"
+        }
 
+    def clean(self):
         cleaned_data = self.cleaned_data
         first_name = cleaned_data.get('first_name')
         last_name = cleaned_data.get('last_name')
 
         if first_name == last_name:
             msg = ValidationError(
-                'segundo nome não pode ser igual ao primeiro',
+                'Фамилия не может быть одинаковой с именем',
                 code='invalid'
             )
-            
             self.add_error('last_name', msg)
 
         return super().clean()
 
-        def clean_first_name(self):
-            first_name = self.cleaned_data.get('first_name')
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name')
 
-            if first_name == 'ABC':
-                self.add_error(
-                    'first_name',
-                    ValidationError(
-                        'Veio do add_error', code='invalid'
+        if first_name == 'ABC':
+            self.add_error(
+                'first_name',
+                ValidationError(
+                    'Ошибка из метода add_error', code='invalid'
                 )
             )
 
         return first_name
 
+
 class RegisterForm(UserCreationForm):
     first_name = forms.CharField(
-        required= True,
-        min_length= 3,
+        label='Имя',
+        required=True,
+        min_length=3,
     )
-    
+
     last_name = forms.CharField(
-        required= True,
-        min_length= 3,
+        label='Фамилия',
+        required=True,
+        min_length=3,
     )
 
     email = forms.EmailField()
-    # esses campos acima(first_name, last_name, e email) servem para forcar o usuarui a informar os dados
-    # sem isso acima os usuarios podem n digitar aquelas informacoes
+
+    # Эти поля (first_name, last_name, email) обязаны быть заполнены пользователем.
+    # Без них пользователи могут не указать эти данные.
     class Meta:
         model = User
         fields = (
@@ -73,109 +87,112 @@ class RegisterForm(UserCreationForm):
             'password2',
         )
 
-        def clean_email(self):
-            email = self.cleaned_data.get('email')
-            
-            if User.objects.filter(email = email).exists(): # Se existe algum usuario com esse email vai retornar TRUE
-                self.add_error(
-                    'email',
-                    ValidationError('Ja existe este e-mail', code='invalid')
-                )
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
 
-            return email
+        if User.objects.filter(email=email).exists():  # Если существует пользователь с таким email, возвращает TRUE
+            self.add_error(
+                'email',
+                ValidationError('Этот email уже существует', code='invalid')
+            )
+
+        return email
+
 
 class RegisterUpdateForm(forms.ModelForm):
-
     first_name = forms.CharField(
+        label='Имя',
         min_length=2,
         max_length=30,
         required=True,
-        help_text='Required.',
+        help_text='Обязательно.',
         error_messages={
-            'min-length':'Plase, add more than 2 letters.'
+            'min_length': 'Пожалуйста, введите более 2 символов.'
         }
-        )
+    )
 
     last_name = forms.CharField(
-            min_length=2,
-            max_length=30,
-            required=True, # para que seja obrigatorio enviar
-            help_text='Required.',
-            )
-    
+        label='Фамилия',
+        min_length=2,
+        max_length=30,
+        required=True,  # Для обязательности заполнения
+        help_text='Обязательно.',
+    )
+
     password1 = forms.CharField(
-        label = 'Password',
-        strip= False,
-        widget= forms.PasswordInput(attrs={"autocomplete": "new-password"}),
-        help_text= password_validation.password_validators_help_text_html(), #para mostrar o text html para ajudar a preencher os campos
+        label='Пароль',
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        help_text=password_validation.password_validators_help_text_html(),
+        # Для отображения подсказок по заполнению пароля
         required=False,
     )
 
     password2 = forms.CharField(
-        label = 'Password 2',
-        strip= False,
-        widget= forms.PasswordInput(attrs={"autocomplete": "new-password"}),
-        help_text= 'Use the same password as before.',
+        label='Пароль (повторите)',
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        help_text='Используйте тот же пароль, что и ранее.',
         required=False,
     )
+
     class Meta:
         model = User
         fields = (
             'first_name', 'last_name', 'email', 'username',
         )
 
-    #essa funcao e para poder salvar as senhas na base de dados, sem elas as senhas n seram salvas.
+    # Эта функция сохраняет пароль в базе данных, чтобы он был зашифрован
     def save(self, commit=True):
-
         cleaned_data = self.cleaned_data
         user = super().save(commit=False)
 
         password = self.cleaned_data.get('password1')
 
         if password:
-            user.set_password(password) # esse metodo 'set_password' e usado para configurar em um usuario, de forma criptografada.and
-        
+            user.set_password(password)  # Метод 'set_password' используется для сохранения пароля в зашифрованном виде.
+
         if commit:
             user.save()
 
         return user
 
-    #Esse clean e para verificar se as duas senhas sao iguais. 
+    # Эта функция проверяет, совпадают ли два пароля
     def clean(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
 
-        if password1 or password2: #se a pass 1 ou a 2 for alterada
-            if password1 != password2: #verifique se elas sao iguais
-                self.add_error('password2', ValidationError('As senhas sao diferentes')) #se n forem iguais,essa sera a mensagem de erro. 
+        if password1 or password2:  # Если хотя бы один из паролей был изменен
+            if password1 != password2:  # Проверка на совпадение паролей
+                self.add_error('password2',
+                               ValidationError('Пароли не совпадают'))  # Сообщение об ошибке, если пароли не совпадают
 
-        return super().clean()    
+        return super().clean()
 
-    #Verifica se o email esta a ser alterado ou nao, e se ele n existe ja na lista dos admin
+        # Эта функция проверяет, был ли изменен email, и если был — не существует ли уже такого email у другого пользователя
+
     def clean_email(self):
-            email = self.cleaned_data.get('email')
-            current_email = self.instance.email
-            
-            if current_email != email: #quer dizer que  a pessoa quer alterar o email dela, entao...
-                if User.objects.filter(email = email).exists(): # Se existe algum usuario com esse email vai retornar TRUE
-                    self.add_error(
-                        'email',
-                        ValidationError('Ja existe este e-mail', code='invalid')
-                    )
+        email = self.cleaned_data.get('email')
+        current_email = self.instance.email
 
-            return email
-    
-    #Verifica se a palavra pass foi alterada e se  existe um erro nela
+        if current_email != email:  # Это означает, что пользователь хочет изменить email, тогда...
+            if User.objects.filter(
+                    email=email).exists():  # Если существует другой пользователь с таким email, то возвращает TRUE
+                self.add_error(
+                    'email',
+                    ValidationError('Этот email уже существует', code='invalid')
+                )
+
+        return email
+
+    # Эта функция проверяет, был ли изменен пароль и валиден ли он
     def clean_password1(self):
         password1 = self.cleaned_data.get('password1')
 
-        if password1: # se n existe palavra pass nova, entao retornara a a antiga. porq o usuario n mudou de pass 
-            
+        if password1:  # Если введен новый пароль
             try:
-                password_validation.validate_password(password1)
-
-            except ValidationError as errors: # se tiver erro, vai se pegar esses erros. 
-
-                self.add_error('password1', ValidationError(errors)) #ValidationError(errors) e esse metodo que faz passa os erros para debaixo da caixa
+                password_validation.validate_password(password1)  # Проверка пароля на валидность
+            except ValidationError as errors:  # Если есть ошибки, они обрабатываются
+                self.add_error('password1', ValidationError(errors))  # Ошибки отображаются под полем пароля
 
         return password1

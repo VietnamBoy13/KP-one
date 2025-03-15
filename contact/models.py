@@ -2,28 +2,29 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-# Create your models here.
 
-# id(primary key - criado automatico pelo django)
+# Создайте свои модели здесь.
 
-# first_name(string), last_name(string), phone(string)
-# email(string), created_date(date), description(test)
+# id (первичный ключ - создается автоматически Django)
 
-# category(foreign key), show(boolean), picture (imagem)
+# first_name (строка), last_name (строка), phone (строка)
+# email (строка), created_date (дата), description (текст)
 
-# owner(foreign key)
+# category (внешний ключ), show (логическое значение), picture (изображение)
+
+# owner (внешний ключ)
 class Category(models.Model):
-    class meta: 
-        verbuso_name = 'Category'#Singular dessa classe sera esse. 
-        verbuso_name_plural = 'categories'# plural dessa classe sera essa. 
+    class Meta:
+        verbose_name = 'Категория'  # Единственное число этой модели
+        verbose_name_plural = 'Категории'  # Множественное число этой модели
 
     name = models.CharField(max_length=50)
-    
+
     def __str__(self) -> str:
         return self.name
-    
-class Contact(models.Model):
 
+
+class Contact(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50, blank=True)
     phone = models.CharField(max_length=50)
@@ -31,12 +32,10 @@ class Contact(models.Model):
     created_date = models.DateField(default=timezone.now)
     description = models.TextField(blank=True)
     show = models.BooleanField(default=True)
-    picture = models.ImageField(blank=True, upload_to= 'picture/%Y/%m/') 
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL,blank=True, null=True) 
+    picture = models.ImageField(blank=True, upload_to='picture/%Y/%m/')
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
 
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    
+
     def __str__(self) -> str:
         return f'{self.first_name} {self.last_name}'
-    
-        

@@ -7,44 +7,44 @@ from random import choice
 import django
 from django.conf import settings
 
-DJANGO_BASE_DIR = Path(__file__).parent.parent #faz importacao para tras, para que o django pesquise coisas que n estao dentro desse model 
-NUMBER_OF_OBJECTS = 1000 # o numero de objeto que seja gerado
+DJANGO_BASE_DIR = Path(__file__).parent.parent  # перемещаемся на уровень выше, чтобы Django искал вещи, которые не находятся внутри этой модели
+NUMBER_OF_OBJECTS = 1000  # количество объектов, которые должны быть созданы
 
 sys.path.append(str(DJANGO_BASE_DIR))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'project.settings'
-settings.USE_TZ = False #para ignorar o erro de timezone, para n conf o timezone
+settings.USE_TZ = False  # чтобы игнорировать ошибку с часовыми поясами, чтобы не было конфликта с временной зоной
 
-django.setup() # Para conf o Django.    
+django.setup()  # Инициализация Django.
 
-if __name__ == '__main__': #Aqui e o inicio do meu SCRIPT
-    import faker # Essa e uma biblioteca usada para gerar dados Falsos, usados para testes do app
+if __name__ == '__main__':  # Начало моего скрипта
+    import faker  # Эта библиотека используется для генерации фальшивых данных, которые могут быть использованы для тестирования приложения
 
     from contact.models import Category, Contact
 
-    #Esses dois metodos abaixos deletam todos os contactos criados na BD antes de add os fake, como n queiro que apage COMENTEI-OS
-    #Contact.objects.all().delete()
-    #Category.objects.all().delete()
+    # Эти два метода ниже удаляют все контакты, созданные в базе данных, перед добавлением фальшивых данных. Я их закомментировал, чтобы не удалять данные.
+    # Contact.objects.all().delete()
+    # Category.objects.all().delete()
 
-    fake = faker.Faker('en-us') #Para que os nomes sejam BR seria: pt_br
-    categories = ['Amigo(a)', 'Família','Colega'] #as categorias precisam ja estar criadas no admin Django
+    fake = faker.Faker('en-us')  # Для генерации имен на английском. Для Бразилии будет 'pt_br'.
+    categories = ['Amigo(a)', 'Família', 'Colega']  # Категории должны быть уже созданы в админке Django
 
-    django_categories = [Category(name=name) for name in categories] #list compreehension para gerar as categorias
+    django_categories = [Category(name=name) for name in categories]  # Используем list comprehension для создания категорий
 
     for category in django_categories:
-        category.save() #salvando as categorias na BD
+        category.save()  # Сохраняем категории в базе данных
 
-    django_contacts = [] 
+    django_contacts = []
 
     for _ in range(NUMBER_OF_OBJECTS):
-        profile = fake.profile() # Vai tirar do fake um perfil com varias informacoes 
-        email = profile['mail'] # Tirou o email dele
-        first_name, last_name = profile['name'].split(' ', 1) # Tirou o primeiro e o ultimo nome 
-        phone = fake.phone_number() #numero de telefone
-        created_date: datetime = fake.date_this_year() #para tirar a data, apenas vai retirar as datas desse ano 
-        description = fake.text(max_nb_chars=100) #gera um texto de no maximo 100 palavras que ficara na descricao 
-        category = choice(django_categories)  #usando o randon choice, escolhera uma das categorias aleatoriamente 
+        profile = fake.profile()  # Генерируем профиль с различными данными
+        email = profile['mail']  # Извлекаем email
+        first_name, last_name = profile['name'].split(' ', 1)  # Извлекаем первое и последнее имя
+        phone = fake.phone_number()  # Генерируем номер телефона
+        created_date: datetime = fake.date_this_year()  # Генерируем дату, только этого года
+        description = fake.text(max_nb_chars=100)  # Генерируем текст длиной до 100 символов для описания
+        category = choice(django_categories)  # Случайным образом выбираем одну из категорий
 
-        #aqui adiciona todos os dados na lista de contactos 
+        # Добавляем данные в список контактов
         django_contacts.append(
             Contact(
                 first_name=first_name,
@@ -57,5 +57,5 @@ if __name__ == '__main__': #Aqui e o inicio do meu SCRIPT
             )
         )
 
-    if len(django_contacts) > 0: # verifica se a lista Django_contacts esta ou n vazia
-        Contact.objects.bulk_create(django_contacts) # para criar e salvar na base de dados tudos de uma so vez
+    if len(django_contacts) > 0:  # Проверяем, если список django_contacts не пуст
+        Contact.objects.bulk_create(django_contacts)  # Создаем и сохраняем все объекты в базе данных за один раз

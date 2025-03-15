@@ -2,29 +2,29 @@
   <h1 class="header-heading"><a href="{% url 'contact:index' %}" class="header-link">AGENDA</a></h1>
   <nav class="menu">
     <ul class="menu-list">
-      {% comment '' %}As coisas a baixo so acontecera caso o usario esteja logado{% endcomment %}
+      {% comment '' %}Действия ниже выполняются только если пользователь авторизован{% endcomment %}
 
       {% if user.is_authenticated %}
         <li class="menu-item">
-          <a href="{% url 'contact:create' %}" class="menu-link">CREATE CONTACT</a>
+          <a href="{% url 'contact:create' %}" class="menu-link">СОЗДАТЬ КОНТАКТ</a>
         </li>
 
         <li class="menu-item">
-          <a href="{% url 'contact:logout' %}" class="menu-link">LOGOUT</a>
+          <a href="{% url 'contact:logout' %}" class="menu-link">ВЫЙТИ</a>
         </li>
 
         <li class="menu-item">
-          <a href="{% url 'contact:user_update' %}" class="menu-link">USER UPDATE</a>
+          <a href="{% url 'contact:user_update' %}" class="menu-link">ОБНОВИТЬ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ</a>
         </li>
 
-        {% comment '' %}Coisas que acontecem caso o usuario n esteja logado.{% endcomment %}
+        {% comment '' %}Действия, если пользователь не авторизован{% endcomment %}
       {% else %}
         <li class="menu-item">
-          <a href="{% url 'contact:login' %}" class="menu-link">LOGIN</a>
+          <a href="{% url 'contact:login' %}" class="menu-link">ВОЙТИ</a>
         </li>
 
         <li class="menu-item">
-          <a href="{% url 'contact:register' %}" class="menu-link">REGISTER</a>
+          <a href="{% url 'contact:register' %}" class="menu-link">РЕГИСТРАЦИЯ</a>
         </li>
       {% endif %}
     </ul>
@@ -33,7 +33,7 @@
   {% if user.is_authenticated %}
     <div class="search">
       <form action="{% url 'contact:search' %}" method="GET">
-        <input type="search" class="search-input" placeholder="Search" id="search" name="h" value="{{ request.GET.h.strip }}" />
+        <input type="search" class="search-input" placeholder="Поиск" id="search" name="h" value="{{ request.GET.h.strip }}" />
       </form>
     </div>
   {% endif %}

@@ -7,7 +7,7 @@ from contact.forms import ContactForm
 from contact.models import Contact
 
 
-@login_required(login_url='contact:login') #Para caso n esteja logado, redirecionar isso para contact:login
+@login_required(login_url='contact:login')  # Если пользователь не авторизован, перенаправляем на contact:login
 def create(request):
     form_action = reverse('contact:create')
     if request.method == 'POST':
@@ -19,84 +19,86 @@ def create(request):
             'form_action': form_action,
         }
 
-        if form.is_valid(): 
-            contact = form.save(commit=False) 
-            contact.owner = request.user # para atribuir um proprietario ao contact criado
+        if form.is_valid():
+            contact = form.save(commit=False)
+            contact.owner = request.user  # Присваиваем владельца создаваемому контакту
             contact.save()
-            messages.success(request, 'Contact Created') #Vai informar que o ficheiro foi salvado
-            return redirect('contact:contact', contact_id = contact.pk) 
-        
+            messages.success(request, 'Контакт создан')  # Информируем, что контакт был сохранен
+            return redirect('contact:contact', contact_id=contact.pk)
+
         return render(
             request,
-            'contact\create.html',
+            'contact/create.html',
             context,
         )
 
     context = {
         'form': ContactForm(),
         'form_action': form_action,
-        }
-    
+    }
+
     return render(
         request,
-        'contact\create.html',
+        'contact/create.html',
         context,
     )
 
+
 @login_required(login_url='contact:login')
 def update(request, contact_id):
-    contact = get_object_or_404(Contact, pk=contact_id, show = True, owner = request.user) #para que n de para mudificarem o contact em outro usuario.
+    contact = get_object_or_404(Contact, pk=contact_id, show=True,
+                                owner=request.user)  # Чтобы не могли изменять контакт другого пользователя.
 
     form_action = reverse('contact:update', args=(contact_id,))
 
     if request.method == 'POST':
 
-        form = ContactForm(request.POST,request.FILES,instance=contact)
+        form = ContactForm(request.POST, request.FILES, instance=contact)
 
         context = {
             'form': form,
             'form_action': form_action,
         }
 
-        if form.is_valid(): 
-            contact = form.save() 
-            messages.success(request, 'Contact Updated') #Vai informar que o ficheiro foi salvado
-            return redirect('contact:update', contact_id = contact.pk) 
-        
+        if form.is_valid():
+            contact = form.save()
+            messages.success(request, 'Контакт обновлен')  # Информируем, что контакт был обновлен
+            return redirect('contact:update', contact_id=contact.pk)
+
         return render(
             request,
-            'contact\create.html',
+            'contact/create.html',
             context,
         )
 
     context = {
         'form': ContactForm(instance=contact),
         'form_action': form_action,
-        }
-    
+    }
+
     return render(
         request,
-        'contact\create.html',
+        'contact/create.html',
         context,
     )
 
-@login_required(login_url='contact:login') 
+
+@login_required(login_url='contact:login')
 def delete(request, contact_id):
-    contact = get_object_or_404(Contact, pk=contact_id, show = True, owner = request.user)
+    contact = get_object_or_404(Contact, pk=contact_id, show=True, owner=request.user)
 
     confirmation = request.POST.get('confirmation', 'no')
 
     if confirmation == 'yes':
         contact.delete()
-        messages.success(request, 'Contact Deteted') #Vai informar que o ficheiro foi salvado
+        messages.success(request, 'Контакт удален')  # Информируем, что контакт был удален
         return redirect('contact:index')
 
     return render(
-        request, 
+        request,
         'contact/contact.html',
         {
             'contact': contact,
-            'confirmation':confirmation,
+            'confirmation': confirmation,
         }
-
     )
